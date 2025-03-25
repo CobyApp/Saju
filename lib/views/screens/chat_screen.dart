@@ -142,7 +142,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('AI 사주봇'),
+          title: const Text('운냥이'),
           elevation: 0.5,
           actions: [
             IconButton(
