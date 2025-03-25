@@ -25,7 +25,7 @@ class ChatService {
           'session_id': sessionId,
           'message': message,
         })),
-      ).timeout(const Duration(seconds: 10));
+      ).timeout(const Duration(seconds: 30));
 
       debugPrint('Response status code: ${response.statusCode}');
       debugPrint('Response body: ${response.body}');

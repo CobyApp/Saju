@@ -30,7 +30,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       context.read<ChatViewModel>().addMessage(
         ChatMessage(
           id: DateTime.now().millisecondsSinceEpoch.toString(),
-          content: "생년월일을 입력해주세요 (예: 1995-06-05)",
+          content: "이름을 입력해주세요.",
           isUser: false,
         ),
       );
@@ -112,7 +112,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                     context.read<ChatViewModel>().addMessage(
                       ChatMessage(
                         id: DateTime.now().millisecondsSinceEpoch.toString(),
-                        content: "생년월일을 입력해주세요 (예: 1995-06-05)",
+                        content: "이름을 입력해주세요.",
                         isUser: false,
                       ),
                     );
@@ -254,6 +254,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                               maxLines: null,
                               textInputAction: TextInputAction.newline,
                               keyboardType: TextInputType.multiline,
+                              autocorrect: false,
                               style: Theme.of(context).textTheme.bodyLarge,
                               decoration: InputDecoration(
                                 hintText: '메시지를 입력하세요...',
