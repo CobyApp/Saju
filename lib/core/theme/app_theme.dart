@@ -2,11 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class AppTheme {
-  static const Color primaryColor = Color(0xFF007AFF); // iOS blue
-  static const Color backgroundColor = Color(0xFFF2F2F7); // iOS background gray
+  // 메인 컬러: 선명한 보라색
+  static const Color primaryColor = Color(0xFF6B4EFF);
+  // 배경색: 은은한 라벤더 그라데이션을 위한 밝은 보라색
+  static const Color backgroundColor = Color(0xFFF5F0FF);
+  // 보조 배경색: 반투명한 흰색
   static const Color secondaryBackgroundColor = Color(0xFFFFFFFF);
-  static const Color textColor = Color(0xFF000000);
-  static const Color secondaryTextColor = Color(0xFF8E8E93);
+  // 텍스트 컬러: 진한 보라색
+  static const Color textColor = Color(0xFF2D1B4E);
+  // 보조 텍스트 컬러: 연한 보라색
+  static const Color secondaryTextColor = Color(0xFF6B4EFF);
+  // 메시지 배경색: 연한 보라색
+  static const Color messageBackgroundColor = Color(0xFFFFFFFF);
+  // 사용자 메시지 배경색: 진한 보라색
+  static const Color userMessageBackgroundColor = Color(0xFF6B4EFF);
+  // 사용자 메시지 텍스트 컬러: 흰색
+  static const Color userMessageTextColor = Color(0xFFFFFFFF);
+  // 앱바 배경색: 반투명한 보라색
+  static const Color appBarBackgroundColor = Color(0xFFFFFFFF);
+  // 앱바 그림자 색상
+  static const Color appBarShadowColor = Color(0x1A6B4EFF);
+  // 메시지 그림자 색상
+  static const Color messageShadowColor = Color(0x1A6B4EFF);
+  // 메시지 테두리 색상
+  static const Color messageBorderColor = Color(0xFFE8E0FF);
 
   static ThemeData get lightTheme {
     return ThemeData(
@@ -41,7 +60,7 @@ class AppTheme {
         ),
       ),
       appBarTheme: const AppBarTheme(
-        backgroundColor: secondaryBackgroundColor,
+        backgroundColor: appBarBackgroundColor,
         elevation: 0,
         centerTitle: true,
         systemOverlayStyle: SystemUiOverlayStyle.dark,
@@ -58,11 +77,11 @@ class AppTheme {
         filled: true,
         fillColor: backgroundColor,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(24),
           borderSide: BorderSide.none,
         ),
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
+          horizontal: 20,
           vertical: 12,
         ),
         hintStyle: const TextStyle(

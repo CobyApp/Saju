@@ -142,183 +142,196 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('운냥이'),
-          elevation: 0.5,
+          title: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryColor.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  CupertinoIcons.moon_stars_fill,
+                  color: AppTheme.primaryColor,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Text('운세냥이'),
+            ],
+          ),
+          elevation: 0,
+          backgroundColor: AppTheme.appBarBackgroundColor,
           actions: [
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: _showResetConfirmationDialog,
-              tooltip: '채팅 내역 초기화',
+            Container(
+              margin: const EdgeInsets.only(right: 8),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryColor.withOpacity(0.1),
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                icon: Icon(CupertinoIcons.arrow_counterclockwise, color: AppTheme.primaryColor),
+                onPressed: _showResetConfirmationDialog,
+                tooltip: '채팅 내역 초기화',
+              ),
             ),
           ],
         ),
         body: SafeArea(
           bottom: false,
-          child: Column(
-            children: [
-              Expanded(
-                child: Container(
-                  color: AppTheme.backgroundColor,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  AppTheme.backgroundColor,
+                  AppTheme.backgroundColor.withOpacity(0.8),
+                ],
+              ),
+            ),
+            child: Column(
+              children: [
+                Expanded(
                   child: Consumer<ChatViewModel>(
                     builder: (context, viewModel, child) {
-                      return Stack(
-                        children: [
-                          ListView.builder(
-                            controller: _scrollController,
-                            padding: EdgeInsets.only(
-                              top: 16,
-                              bottom: _isKeyboardVisible ? 80 : 16,
-                              left: 8,
-                              right: 8,
-                            ),
-                            itemCount: viewModel.messages.length,
-                            itemBuilder: (context, index) {
-                              final message = viewModel.messages[index];
-                              return ChatMessageWidget(
-                                message: message.content,
-                                isUser: message.isUser,
-                              );
-                            },
-                          ),
-                          if (viewModel.isLoading)
-                            Positioned(
-                              bottom: 20,
-                              left: 0,
-                              right: 0,
-                              child: Center(
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 8,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black54,
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  child: const Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CupertinoActivityIndicator(
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      SizedBox(width: 8),
-                                      Text(
-                                        '답변 생성 중...',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                        ],
+                      return ListView.builder(
+                        controller: _scrollController,
+                        padding: EdgeInsets.only(
+                          top: 16,
+                          bottom: _isKeyboardVisible ? 80 : 16,
+                          left: 8,
+                          right: 8,
+                        ),
+                        itemCount: viewModel.messages.length + (viewModel.isLoading ? 1 : 0),
+                        itemBuilder: (context, index) {
+                          if (index == viewModel.messages.length) {
+                            return ChatMessageWidget(
+                              message: "",
+                              isUser: false,
+                              isLoading: true,
+                            );
+                          }
+                          final message = viewModel.messages[index];
+                          return ChatMessageWidget(
+                            message: message.content,
+                            isUser: message.isUser,
+                          );
+                        },
                       );
                     },
                   ),
                 ),
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  color: AppTheme.secondaryBackgroundColor,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 8,
-                      offset: const Offset(0, -2),
-                    ),
-                  ],
-                ),
-                child: SafeArea(
-                  top: false,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Expanded(
-                          child: Container(
-                            constraints: const BoxConstraints(
-                              maxHeight: 100,
-                              minHeight: 40,
-                            ),
-                            child: TextField(
-                              controller: _messageController,
-                              focusNode: _focusNode,
-                              maxLines: null,
-                              textInputAction: TextInputAction.newline,
-                              keyboardType: TextInputType.multiline,
-                              autocorrect: false,
-                              style: Theme.of(context).textTheme.bodyLarge,
-                              decoration: InputDecoration(
-                                hintText: '메시지를 입력하세요...',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                  borderSide: BorderSide.none,
-                                ),
-                                filled: true,
-                                fillColor: AppTheme.backgroundColor,
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 10,
-                                ),
-                                isDense: true,
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppTheme.secondaryBackgroundColor,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppTheme.appBarShadowColor,
+                        blurRadius: 8,
+                        offset: const Offset(0, -2),
+                      ),
+                    ],
+                  ),
+                  child: SafeArea(
+                    top: false,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Expanded(
+                            child: Container(
+                              constraints: const BoxConstraints(
+                                maxHeight: 100,
+                                minHeight: 40,
                               ),
-                              onSubmitted: (_) {
-                                if (_isComposing) {
-                                  _handleSendMessage(context);
-                                }
-                              },
+                              child: TextField(
+                                controller: _messageController,
+                                focusNode: _focusNode,
+                                maxLines: null,
+                                textInputAction: TextInputAction.newline,
+                                keyboardType: TextInputType.multiline,
+                                autocorrect: false,
+                                style: Theme.of(context).textTheme.bodyLarge,
+                                decoration: InputDecoration(
+                                  hintText: '메시지를 입력하세요...',
+                                  hintStyle: TextStyle(
+                                    color: AppTheme.secondaryTextColor.withOpacity(0.7),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(24),
+                                    borderSide: BorderSide.none,
+                                  ),
+                                  filled: true,
+                                  fillColor: AppTheme.backgroundColor,
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 10,
+                                  ),
+                                  isDense: true,
+                                ),
+                                onSubmitted: (_) {
+                                  if (_isComposing) {
+                                    _handleSendMessage(context);
+                                  }
+                                },
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Consumer<ChatViewModel>(
-                          builder: (context, viewModel, child) {
-                            return AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              curve: Curves.easeInOut,
-                              margin: const EdgeInsets.only(bottom: 4),
-                              decoration: BoxDecoration(
-                                color: _isComposing && !viewModel.isLoading
-                                    ? AppTheme.primaryColor
-                                    : AppTheme.secondaryTextColor.withOpacity(0.5),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(20),
-                                  onTap: (_isComposing && !viewModel.isLoading)
-                                      ? () => _handleSendMessage(context)
-                                      : null,
-                                  child: Container(
-                                    padding: const EdgeInsets.all(10),
-                                    child: Icon(
-                                      viewModel.isLoading
-                                          ? CupertinoIcons.hourglass
-                                          : CupertinoIcons.arrow_up_circle_fill,
-                                      color: Colors.white,
-                                      size: 24,
+                          const SizedBox(width: 8),
+                          Consumer<ChatViewModel>(
+                            builder: (context, viewModel, child) {
+                              return AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                curve: Curves.easeInOut,
+                                margin: const EdgeInsets.only(bottom: 4),
+                                decoration: BoxDecoration(
+                                  color: _isComposing && !viewModel.isLoading
+                                      ? AppTheme.primaryColor
+                                      : AppTheme.secondaryTextColor.withOpacity(0.3),
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: (_isComposing && !viewModel.isLoading
+                                          ? AppTheme.primaryColor
+                                          : AppTheme.secondaryTextColor.withOpacity(0.3)).withOpacity(0.3),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    borderRadius: BorderRadius.circular(20),
+                                    onTap: (_isComposing && !viewModel.isLoading)
+                                        ? () => _handleSendMessage(context)
+                                        : null,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(10),
+                                      child: Icon(
+                                        viewModel.isLoading
+                                            ? CupertinoIcons.hourglass
+                                            : CupertinoIcons.arrow_up_circle_fill,
+                                        color: Colors.white,
+                                        size: 24,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
