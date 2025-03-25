@@ -64,11 +64,11 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       // 키보드 숨기기
       FocusScope.of(context).unfocus();
       
-      // 메시지 전송
-      Provider.of<ChatViewModel>(context, listen: false).addMessage(message, true);
-      
       // 입력창 초기화
       _messageController.clear();
+      
+      // 메시지 전송
+      await context.read<ChatViewModel>().sendMessage(message);
       
       // 스크롤 애니메이션
       await Future.delayed(const Duration(milliseconds: 100));
@@ -94,20 +94,62 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                   color: AppTheme.backgroundColor,
                   child: Consumer<ChatViewModel>(
                     builder: (context, viewModel, child) {
-                      return ListView.builder(
-                        controller: _scrollController,
-                        padding: EdgeInsets.only(
-                          top: 16,
-                          bottom: _isKeyboardVisible ? 80 : 16,
-                          left: 8,
-                          right: 8,
-                        ),
-                        itemCount: viewModel.messages.length,
-                        itemBuilder: (context, index) {
-                          return ChatMessageWidget(
-                            message: viewModel.messages[index],
-                          );
-                        },
+                      return Stack(
+                        children: [
+                          ListView.builder(
+                            controller: _scrollController,
+                            padding: EdgeInsets.only(
+                              top: 16,
+                              bottom: _isKeyboardVisible ? 80 : 16,
+                              left: 8,
+                              right: 8,
+                            ),
+                            itemCount: viewModel.messages.length,
+                            itemBuilder: (context, index) {
+                              return ChatMessageWidget(
+                                message: viewModel.messages[index],
+                              );
+                            },
+                          ),
+                          if (viewModel.isLoading)
+                            Positioned(
+                              bottom: 20,
+                              left: 0,
+                              right: 0,
+                              child: Center(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black54,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CupertinoActivityIndicator(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        '답변 생성 중...',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
                       );
                     },
                   ),
@@ -167,33 +209,39 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          curve: Curves.easeInOut,
-                          margin: const EdgeInsets.only(bottom: 4),
-                          decoration: BoxDecoration(
-                            color: _isComposing 
-                                ? AppTheme.primaryColor
-                                : AppTheme.secondaryTextColor.withOpacity(0.5),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(20),
-                              onTap: _isComposing
-                                  ? () => _handleSendMessage(context)
-                                  : null,
-                              child: Container(
-                                padding: const EdgeInsets.all(10),
-                                child: Icon(
-                                  CupertinoIcons.arrow_up_circle_fill,
-                                  color: Colors.white,
-                                  size: 24,
+                        Consumer<ChatViewModel>(
+                          builder: (context, viewModel, child) {
+                            return AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              curve: Curves.easeInOut,
+                              margin: const EdgeInsets.only(bottom: 4),
+                              decoration: BoxDecoration(
+                                color: _isComposing && !viewModel.isLoading
+                                    ? AppTheme.primaryColor
+                                    : AppTheme.secondaryTextColor.withOpacity(0.5),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(20),
+                                  onTap: (_isComposing && !viewModel.isLoading)
+                                      ? () => _handleSendMessage(context)
+                                      : null,
+                                  child: Container(
+                                    padding: const EdgeInsets.all(10),
+                                    child: Icon(
+                                      viewModel.isLoading
+                                          ? CupertinoIcons.hourglass
+                                          : CupertinoIcons.arrow_up_circle_fill,
+                                      color: Colors.white,
+                                      size: 24,
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
+                            );
+                          },
                         ),
                       ],
                     ),
