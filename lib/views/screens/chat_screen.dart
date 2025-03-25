@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../viewmodels/chat_view_model.dart';
+import '../../models/chat_message.dart';
 import '../widgets/chat_message_widget.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -24,6 +25,16 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     super.initState();
     _messageController.addListener(_handleTextChange);
     _focusNode.addListener(_handleFocusChange);
+    // 시작 메시지 추가
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ChatViewModel>().addMessage(
+        ChatMessage(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          content: "생년월일을 입력해주세요 (예: 1995-06-05)",
+          isUser: false,
+        ),
+      );
+    });
   }
 
   @override
@@ -76,6 +87,55 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     }
   }
 
+  Future<void> _showResetConfirmationDialog() async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('채팅 내역 초기화'),
+          content: const Text('모든 채팅 내역이 삭제됩니다. 계속하시겠습니까?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('취소'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('초기화'),
+              onPressed: () async {
+                try {
+                  await context.read<ChatViewModel>().clearChatHistory();
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                    // 시작 메시지 다시 추가
+                    context.read<ChatViewModel>().addMessage(
+                      ChatMessage(
+                        id: DateTime.now().millisecondsSinceEpoch.toString(),
+                        content: "생년월일을 입력해주세요 (예: 1995-06-05)",
+                        isUser: false,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('초기화 중 오류가 발생했습니다: ${e.toString()}'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -84,6 +144,13 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         appBar: AppBar(
           title: const Text('AI 사주봇'),
           elevation: 0.5,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: _showResetConfirmationDialog,
+              tooltip: '채팅 내역 초기화',
+            ),
+          ],
         ),
         body: SafeArea(
           bottom: false,
@@ -106,8 +173,10 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                             ),
                             itemCount: viewModel.messages.length,
                             itemBuilder: (context, index) {
+                              final message = viewModel.messages[index];
                               return ChatMessageWidget(
-                                message: viewModel.messages[index],
+                                message: message.content,
+                                isUser: message.isUser,
                               );
                             },
                           ),
